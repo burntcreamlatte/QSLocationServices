@@ -25,7 +25,7 @@
                                     <constraint firstAttribute="height" constant="40" id="jcB-6z-3cv"/>
                                 </constraints>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QFg-wF-pDZ">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Welcome" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QFg-wF-pDZ">
                                 <rect key="frame" x="0.0" y="812" width="414" height="50"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                 <constraints>
@@ -35,14 +35,28 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9s8-rn-nVD">
+                                <rect key="frame" x="309" y="707" width="75" height="75"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="9s8-rn-nVD" secondAttribute="height" multiplier="1:1" id="Es9-K4-OPq"/>
+                                    <constraint firstAttribute="height" constant="75" id="lmA-8v-Go4"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="20"/>
+                                <state key="normal" title="Button"/>
+                                <connections>
+                                    <action selector="routeButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="mkh-Ke-sXX"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
                             <constraint firstItem="ubn-Pe-xPF" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="06V-0D-P6v"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="9s8-rn-nVD" secondAttribute="trailing" constant="30" id="4gw-tw-QVI"/>
                             <constraint firstItem="X2p-8b-ten" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" constant="-20" id="7GB-cN-t3l"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="ubn-Pe-xPF" secondAttribute="trailing" id="7wY-iw-baa"/>
                             <constraint firstItem="ubn-Pe-xPF" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="DXR-nD-SiN"/>
                             <constraint firstItem="X2p-8b-ten" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Ddj-4T-OKT"/>
+                            <constraint firstItem="QFg-wF-pDZ" firstAttribute="top" secondItem="9s8-rn-nVD" secondAttribute="bottom" constant="30" id="PcY-5J-pvW"/>
                             <constraint firstItem="ubn-Pe-xPF" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="YnS-kn-mFN"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="QFg-wF-pDZ" secondAttribute="trailing" id="ZL9-Z9-DJL"/>
                             <constraint firstItem="QFg-wF-pDZ" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="gyC-eu-SQY"/>
@@ -54,6 +68,7 @@
                     <connections>
                         <outlet property="addressLabel" destination="QFg-wF-pDZ" id="HiL-Gp-eCl"/>
                         <outlet property="mapView" destination="ubn-Pe-xPF" id="fCB-CT-SCc"/>
+                        <outlet property="routeButton" destination="9s8-rn-nVD" id="KUJ-tN-s4k"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

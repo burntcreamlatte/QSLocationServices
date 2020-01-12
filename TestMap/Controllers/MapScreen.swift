@@ -14,18 +14,28 @@ class MapScreen: UIViewController {
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var addressLabel: UILabel!
+    @IBOutlet weak var routeButton: UIButton!
     
     let locationManager = CLLocationManager()
     let regionInMeters: Double = 10000
     var previousLocation: CLLocation?
     
+    let geoCoder = CLGeocoder()
+    var directionsArray = [MKDirections]()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
+        designRouteButton()
         checkLocationServices()
         self.mapView.showsUserLocation = true //may need moved
     }
+    
+    @IBAction func routeButtonTapped(_ sender: UIButton) {
+        getDirections()
+    }
+    
     
     func setupLocationManager() {
         locationManager.delegate = self
@@ -63,8 +73,8 @@ class MapScreen: UIViewController {
             //show alert instructing them how to turn on permissions
             break
         @unknown default:
-            fatalError()
             print("Unknown error occured during checking location authorization permissions.")
+            fatalError()
         }
     }
     
@@ -75,6 +85,15 @@ class MapScreen: UIViewController {
         //self.mapView.showsUserLocation = true
         locationManager.startUpdatingLocation()
         previousLocation = getCenterLocation(for: mapView)
+    }
+    
+    func designRouteButton() {
+        routeButton.layer.backgroundColor = UIColor.systemGreen.cgColor
+        
+        routeButton.setTitle("Route", for: .normal)
+        routeButton.setTitleColor(.white, for: .normal)
+        
+        routeButton.layer.cornerRadius = routeButton.frame.height / 2
     }
 }
 
@@ -95,17 +114,66 @@ extension MapScreen: CLLocationManagerDelegate {
         
         return CLLocation(latitude: latitude, longitude: longitude)
     }
+    
+    func getDirections() {
+        guard let location = locationManager.location?.coordinate else {
+            //show error message
+            print("Error in getting directions.")
+            return
+        }
+        
+        let request = createDirectionsRequest(from: location)
+        let directions = MKDirections(request: request)
+        //reseting map with NEW directions here to cancel old directions list
+        resetMapView(withNew: directions)
+        
+        directions.calculate { [unowned self] (response, error) in
+            guard let response = response else { return } //show response in alertcontroller
+            
+            for route in response.routes {
+                //if steps are needed
+                //let steps = route.steps
+                self.mapView.addOverlay(route.polyline)
+            //will need to bring rect out more 
+            self.mapView.setVisibleMapRect(route.polyline.boundingMapRect, animated: true)
+            }
+        }
+    }
+    
+    func createDirectionsRequest(from coordinate: CLLocationCoordinate2D) -> MKDirections.Request {
+        let destinationCoordinate = getCenterLocation(for: mapView).coordinate
+        let startingLocation = MKPlacemark(coordinate: coordinate)
+        let destination = MKPlacemark(coordinate: destinationCoordinate)
+        
+        let request = MKDirections.Request()
+        request.source = MKMapItem(placemark: startingLocation)
+        request.destination = MKMapItem(placemark: destination)
+        request.transportType = .automobile
+        //likely won't need but here it is
+        //request.requestsAlternateRoutes = true
+        
+        return request
+    }
+    
+    func resetMapView(withNew directions: MKDirections) {
+        mapView.removeOverlays(mapView.overlays)
+        directionsArray.append(directions)
+        //only cancels a PENDING REQUEST, does not remove
+        let _ = directionsArray.map { $0.cancel() }
+    }
 }
 
 extension MapScreen: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         let center = getCenterLocation(for: mapView)
-        let geoCoder = CLGeocoder()
+        //let geoCoder = CLGeocoder()
         
         guard let previousLocation = self.previousLocation else { return }
         //must me more than 50 meters difference before updates request for location
         guard center.distance(from: previousLocation) > 50 else { return }
         self.previousLocation = center
+        
+        geoCoder.cancelGeocode()
         
 //        After initiating a reverse-geocoding request, do not attempt to initiate another reverse- or forward-geocoding request. Geocoding requests are rate-limited for each app, so making too many requests in a short period of time may cause some of the requests to fail. When the maximum rate is exceeded, the geocoder passes an error object with the value CLError.Code.network to your completion handler.
         geoCoder.reverseGeocodeLocation(center) { [weak self] (placemarks, error) in
@@ -128,5 +196,12 @@ extension MapScreen: MKMapViewDelegate {
                 self.addressLabel.text = "\(streetNumber) \(streetName)"
             }
         }
+    }
+    
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        let renderer = MKPolylineRenderer(overlay: overlay as! MKPolyline)
+        renderer.strokeColor = .purple
+        
+        return renderer
     }
 }
