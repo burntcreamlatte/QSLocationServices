@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AB4AB30523CE42DA00E06050 /* ResultsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4AB30423CE42DA00E06050 /* ResultsTableViewCell.swift */; };
+		AB4AB30723CE639F00E06050 /* DirectionsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4AB30623CE639F00E06050 /* DirectionsTableView.swift */; };
 		ABBA27A423C65B34008C24BD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBA27A323C65B34008C24BD /* AppDelegate.swift */; };
 		ABBA27A623C65B34008C24BD /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBA27A523C65B34008C24BD /* SceneDelegate.swift */; };
 		ABBA27AB23C65B34008C24BD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ABBA27A923C65B34008C24BD /* Main.storyboard */; };
@@ -16,6 +18,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AB4AB30423CE42DA00E06050 /* ResultsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableViewCell.swift; sourceTree = "<group>"; };
+		AB4AB30623CE639F00E06050 /* DirectionsTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectionsTableView.swift; sourceTree = "<group>"; };
 		ABBA27A023C65B34008C24BD /* TestMap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABBA27A323C65B34008C24BD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		ABBA27A523C65B34008C24BD /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -78,7 +82,6 @@
 			isa = PBXGroup;
 			children = (
 				ABBA27B923C65BFC008C24BD /* View Controllers */,
-				ABBA27BC23C65ECE008C24BD /* MapScreen.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -86,6 +89,8 @@
 		ABBA27B923C65BFC008C24BD /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				ABBA27BC23C65ECE008C24BD /* MapScreen.swift */,
+				AB4AB30623CE639F00E06050 /* DirectionsTableView.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -94,6 +99,7 @@
 			isa = PBXGroup;
 			children = (
 				ABBA27BB23C65C0B008C24BD /* Storyboards */,
+				AB4AB30423CE42DA00E06050 /* ResultsTableViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -181,6 +187,8 @@
 				ABBA27BD23C65ECE008C24BD /* MapScreen.swift in Sources */,
 				ABBA27A423C65B34008C24BD /* AppDelegate.swift in Sources */,
 				ABBA27A623C65B34008C24BD /* SceneDelegate.swift in Sources */,
+				AB4AB30523CE42DA00E06050 /* ResultsTableViewCell.swift in Sources */,
+				AB4AB30723CE639F00E06050 /* DirectionsTableView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

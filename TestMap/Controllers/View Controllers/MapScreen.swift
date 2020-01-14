@@ -10,11 +10,31 @@ import Foundation
 import MapKit
 import CoreLocation
 
-class MapScreen: UIViewController {
+class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return directionsTableView.directions?.steps.count ?? 0
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "directionsCell", for: indexPath)
+        //directionsTableView.directions?.steps.remove(at: 0)
+        var correctedStepsArray = directionsTableView.directions?.steps
+        let step = correctedStepsArray?[indexPath.row]
+        let instructions = step?.instructions
+        
+        cell.textLabel?.text = "\(instructions ?? "")"
+
+        return cell
+    }
+    
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var addressLabel: UILabel!
     @IBOutlet weak var routeButton: UIButton!
+    @IBOutlet weak var directionsTableView: DirectionsTableView!
+    @IBOutlet weak var etaLabel: UILabel!
+    
     
     let locationManager = CLLocationManager()
     let regionInMeters: Double = 10000
@@ -27,6 +47,8 @@ class MapScreen: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
+        directionsTableView.delegate = self
+        directionsTableView.dataSource = self
         designRouteButton()
         checkLocationServices()
         self.mapView.showsUserLocation = true //may need moved
@@ -95,15 +117,18 @@ class MapScreen: UIViewController {
         
         routeButton.layer.cornerRadius = routeButton.frame.height / 2
     }
+    
+    //extra testing
+    
 }
 
 extension MapScreen: CLLocationManagerDelegate {
-//    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-//        guard let location = locations.last else { return }
-//        let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-//        let region = MKCoordinateRegion.init(center: center, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
-//        mapView.setRegion(region, animated: true)
-//    }
+    //    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    //        guard let location = locations.last else { return }
+    //        let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+    //        let region = MKCoordinateRegion.init(center: center, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
+    //        mapView.setRegion(region, animated: true)
+    //    }
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         checkLocationAuthorization()
     }
@@ -124,6 +149,7 @@ extension MapScreen: CLLocationManagerDelegate {
         
         let request = createDirectionsRequest(from: location)
         let directions = MKDirections(request: request)
+        
         //reseting map with NEW directions here to cancel old directions list
         resetMapView(withNew: directions)
         
@@ -132,10 +158,20 @@ extension MapScreen: CLLocationManagerDelegate {
             
             for route in response.routes {
                 //if steps are needed
-                //let steps = route.steps
+                var steps = route.steps
                 self.mapView.addOverlay(route.polyline)
-            //will need to bring rect out more 
-            self.mapView.setVisibleMapRect(route.polyline.boundingMapRect, animated: true)
+                //will need to bring rect out more
+                self.mapView.setVisibleMapRect(route.polyline.boundingMapRect, animated: true)
+                
+                //shows individual routing steps
+                for step in steps {
+                    print(step.instructions)
+                    if !step.instructions.isEmpty {
+                        steps.remove(at: 0)
+                    }
+                }
+                self.directionsTableView.directions = route
+                self.directionsTableView.reloadData()
             }
         }
     }
@@ -155,14 +191,50 @@ extension MapScreen: CLLocationManagerDelegate {
         return request
     }
     
+    
     func resetMapView(withNew directions: MKDirections) {
         mapView.removeOverlays(mapView.overlays)
         directionsArray.append(directions)
         //only cancels a PENDING REQUEST, does not remove
         let _ = directionsArray.map { $0.cancel() }
     }
+    
+    func getDirectionsTest() {
+        guard let location = locationManager.location?.coordinate else {
+            //show error message
+            print("Error in getting directions.")
+            return
+        }
+        
+        let request = createDirectionsRequest(from: location)
+        let directions = MKDirections(request: request)
+        //reseting map with NEW directions here to cancel old directions list
+        resetMapView(withNew: directions)
+        
+        directions.calculate { [unowned self] (response, error) in
+            guard let response = response else { return } //show response in alertcontroller
+            
+            for route in response.routes {
+                //if steps are needed
+                //route.expectedTravelTime //will need this
+                let steps = route.steps
+                self.mapView.addOverlay(route.polyline)
+                //will need to bring rect out more
+                self.mapView.setVisibleMapRect(route.polyline.boundingMapRect, animated: true)
+                
+                //shows individual routing steps
+                for step in steps {
+                    print(step.instructions)
+                    
+                }
+            }
+        }
+        
+        func clearMapView() {
+            mapView.removeOverlays(mapView.overlays)
+        }
+    }
 }
-
 extension MapScreen: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         let center = getCenterLocation(for: mapView)
@@ -175,7 +247,7 @@ extension MapScreen: MKMapViewDelegate {
         
         geoCoder.cancelGeocode()
         
-//        After initiating a reverse-geocoding request, do not attempt to initiate another reverse- or forward-geocoding request. Geocoding requests are rate-limited for each app, so making too many requests in a short period of time may cause some of the requests to fail. When the maximum rate is exceeded, the geocoder passes an error object with the value CLError.Code.network to your completion handler.
+        //        After initiating a reverse-geocoding request, do not attempt to initiate another reverse- or forward-geocoding request. Geocoding requests are rate-limited for each app, so making too many requests in a short period of time may cause some of the requests to fail. When the maximum rate is exceeded, the geocoder passes an error object with the value CLError.Code.network to your completion handler.
         geoCoder.reverseGeocodeLocation(center) { [weak self] (placemarks, error) in
             guard let self = self else { return }
             
