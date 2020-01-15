@@ -40,7 +40,7 @@ extension DirectionsTableView: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = dequeueReusableCell(withIdentifier: "directionsCell", for: indexPath)
         
-        let step = directions?.steps[indexPath.row + 1]
+        let step = directions?.steps[indexPath.row]
         let instructions = step?.instructions
         
         cell.textLabel?.text = "\(instructions ?? "")"

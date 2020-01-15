@@ -77,24 +77,35 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="ETA" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7VT-jT-CLf">
-                                <rect key="frame" x="192" y="44" width="30" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ETA" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7VT-jT-CLf">
+                                <rect key="frame" x="138.5" y="68" width="137" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="XEv-9h-WQw">
+                                <rect key="frame" x="131.5" y="123" width="151" height="32"/>
+                                <segments>
+                                    <segment title="Route"/>
+                                    <segment title="Annotate"/>
+                                </segments>
+                            </segmentedControl>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
                             <constraint firstItem="ubn-Pe-xPF" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="06V-0D-P6v"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="jut-WC-Ag5" secondAttribute="trailing" id="1Sb-e4-s8c"/>
+                            <constraint firstItem="7VT-jT-CLf" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="4SK-YT-NWy"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="9s8-rn-nVD" secondAttribute="trailing" constant="30" id="4gw-tw-QVI"/>
+                            <constraint firstItem="7VT-jT-CLf" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="24" id="6lG-p6-6L1"/>
                             <constraint firstItem="X2p-8b-ten" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" constant="-20" id="7GB-cN-t3l"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="ubn-Pe-xPF" secondAttribute="trailing" id="7wY-iw-baa"/>
+                            <constraint firstItem="XEv-9h-WQw" firstAttribute="top" secondItem="7VT-jT-CLf" secondAttribute="bottom" constant="34.5" id="8B2-p8-sVx"/>
                             <constraint firstItem="ubn-Pe-xPF" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="DXR-nD-SiN"/>
                             <constraint firstItem="X2p-8b-ten" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Ddj-4T-OKT"/>
                             <constraint firstItem="jut-WC-Ag5" firstAttribute="top" secondItem="QFg-wF-pDZ" secondAttribute="bottom" id="Frp-K1-iFf"/>
+                            <constraint firstItem="XEv-9h-WQw" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="H0b-7R-eK4"/>
+                            <constraint firstItem="7VT-jT-CLf" firstAttribute="width" secondItem="6Tk-OE-BBY" secondAttribute="width" multiplier="0.33" id="HXx-QH-Vbq"/>
                             <constraint firstItem="jut-WC-Ag5" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="L3X-pa-WOz"/>
                             <constraint firstAttribute="bottom" secondItem="jut-WC-Ag5" secondAttribute="bottom" constant="20" symbolic="YES" id="MQ2-Mi-MxE"/>
                             <constraint firstItem="jut-WC-Ag5" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="Mge-41-wLW"/>
@@ -113,6 +124,7 @@
                         <outlet property="etaLabel" destination="7VT-jT-CLf" id="aLo-Bh-ee5"/>
                         <outlet property="mapView" destination="ubn-Pe-xPF" id="fCB-CT-SCc"/>
                         <outlet property="routeButton" destination="9s8-rn-nVD" id="KUJ-tN-s4k"/>
+                        <outlet property="routeSegmentedControl" destination="XEv-9h-WQw" id="xj4-Vk-yf2"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

@@ -12,23 +12,29 @@ import CoreLocation
 
 class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
+    //potential better array as property in file
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return directionsTableView.directions?.steps.count ?? 0
+        (directionsTableView.directions?.steps.count ?? 1) - 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "directionsCell", for: indexPath)
         //directionsTableView.directions?.steps.remove(at: 0)
         var correctedStepsArray = directionsTableView.directions?.steps
+        correctedStepsArray?.remove(at: 0)
         let step = correctedStepsArray?[indexPath.row]
         let instructions = step?.instructions
         
-        cell.textLabel?.text = "\(instructions ?? "")"
+        if instructions != nil {
+            cell.textLabel?.text = "\(instructions ?? "void")"
+        }
 
         return cell
     }
     
     
+    @IBOutlet weak var routeSegmentedControl: UISegmentedControl!
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var addressLabel: UILabel!
     @IBOutlet weak var routeButton: UIButton!
@@ -55,7 +61,11 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
     }
     
     @IBAction func routeButtonTapped(_ sender: UIButton) {
-        getDirections()
+        if routeSegmentedControl.selectedSegmentIndex == 0 {
+            getDirections()
+        } else if routeSegmentedControl.selectedSegmentIndex == 1 {
+            
+        }
     }
     
     
@@ -110,12 +120,21 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
     }
     
     func designRouteButton() {
+        if routeSegmentedControl.selectedSegmentIndex == 0 {
         routeButton.layer.backgroundColor = UIColor.systemGreen.cgColor
         
         routeButton.setTitle("Route", for: .normal)
         routeButton.setTitleColor(.white, for: .normal)
         
         routeButton.layer.cornerRadius = routeButton.frame.height / 2
+        } else if routeSegmentedControl.selectedSegmentIndex == 1 {
+            routeButton.layer.backgroundColor = UIColor.systemGreen.cgColor
+            
+            routeButton.setTitle("Post", for: .normal)
+            routeButton.setTitleColor(.white, for: .normal)
+            
+            routeButton.layer.cornerRadius = routeButton.frame.height / 2
+        }
     }
     
     //extra testing
@@ -159,18 +178,19 @@ extension MapScreen: CLLocationManagerDelegate {
             for route in response.routes {
                 //if steps are needed
                 var steps = route.steps
+                steps.removeFirst()
+                
                 self.mapView.addOverlay(route.polyline)
                 //will need to bring rect out more
                 self.mapView.setVisibleMapRect(route.polyline.boundingMapRect, animated: true)
                 
                 //shows individual routing steps
+                //steps.remove(at: 0)
                 for step in steps {
                     print(step.instructions)
-                    if !step.instructions.isEmpty {
-                        steps.remove(at: 0)
-                    }
                 }
                 self.directionsTableView.directions = route
+                self.etaLabel.text = "\(route.expectedTravelTime)"
                 self.directionsTableView.reloadData()
             }
         }
@@ -198,45 +218,14 @@ extension MapScreen: CLLocationManagerDelegate {
         //only cancels a PENDING REQUEST, does not remove
         let _ = directionsArray.map { $0.cancel() }
     }
-    
-    func getDirectionsTest() {
-        guard let location = locationManager.location?.coordinate else {
-            //show error message
-            print("Error in getting directions.")
-            return
-        }
         
-        let request = createDirectionsRequest(from: location)
-        let directions = MKDirections(request: request)
-        //reseting map with NEW directions here to cancel old directions list
-        resetMapView(withNew: directions)
-        
-        directions.calculate { [unowned self] (response, error) in
-            guard let response = response else { return } //show response in alertcontroller
-            
-            for route in response.routes {
-                //if steps are needed
-                //route.expectedTravelTime //will need this
-                let steps = route.steps
-                self.mapView.addOverlay(route.polyline)
-                //will need to bring rect out more
-                self.mapView.setVisibleMapRect(route.polyline.boundingMapRect, animated: true)
-                
-                //shows individual routing steps
-                for step in steps {
-                    print(step.instructions)
-                    
-                }
-            }
-        }
-        
-        func clearMapView() {
-            mapView.removeOverlays(mapView.overlays)
-        }
+    func clearMapView() {
+        mapView.removeOverlays(mapView.overlays)
     }
 }
 extension MapScreen: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        //find a way to ignore center location if user is not placing pin
         let center = getCenterLocation(for: mapView)
         //let geoCoder = CLGeocoder()
         
