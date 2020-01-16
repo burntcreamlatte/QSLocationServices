@@ -39,7 +39,7 @@
                                 </constraints>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Welcome" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QFg-wF-pDZ">
-                                <rect key="frame" x="0.0" y="698" width="414" height="50"/>
+                                <rect key="frame" x="0.0" y="621.5" width="414" height="50"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="50" id="M2Z-3j-KGl"/>
@@ -49,7 +49,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9s8-rn-nVD">
-                                <rect key="frame" x="309" y="593" width="75" height="75"/>
+                                <rect key="frame" x="309" y="516.5" width="75" height="75"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="9s8-rn-nVD" secondAttribute="height" multiplier="1:1" id="Es9-K4-OPq"/>
                                     <constraint firstAttribute="height" constant="75" id="lmA-8v-Go4"/>
@@ -61,11 +61,8 @@
                                 </connections>
                             </button>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="jut-WC-Ag5" customClass="DirectionsTableView" customModule="TestMap" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="748" width="414" height="128"/>
+                                <rect key="frame" x="0.0" y="671.5" width="414" height="204.5"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="128" id="czV-Mv-j94"/>
-                                </constraints>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="directionsCell" id="Tzg-t4-9XP">
                                         <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
@@ -83,12 +80,21 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Distance" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kY5-3n-2po">
+                                <rect key="frame" x="173.5" y="104.5" width="67" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="XEv-9h-WQw">
-                                <rect key="frame" x="131.5" y="123" width="151" height="32"/>
+                                <rect key="frame" x="151.5" y="141.5" width="111" height="32"/>
                                 <segments>
                                     <segment title="Route"/>
-                                    <segment title="Annotate"/>
+                                    <segment title="Post"/>
                                 </segments>
+                                <connections>
+                                    <action selector="routeSegmentedControlToggled:" destination="BYZ-38-t0r" eventType="valueChanged" id="2vL-G9-a2e"/>
+                                </connections>
                             </segmentedControl>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
@@ -100,9 +106,10 @@
                             <constraint firstItem="7VT-jT-CLf" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="24" id="6lG-p6-6L1"/>
                             <constraint firstItem="X2p-8b-ten" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" constant="-20" id="7GB-cN-t3l"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="ubn-Pe-xPF" secondAttribute="trailing" id="7wY-iw-baa"/>
-                            <constraint firstItem="XEv-9h-WQw" firstAttribute="top" secondItem="7VT-jT-CLf" secondAttribute="bottom" constant="34.5" id="8B2-p8-sVx"/>
+                            <constraint firstItem="jut-WC-Ag5" firstAttribute="height" secondItem="6Tk-OE-BBY" secondAttribute="height" multiplier="0.25" id="95U-N6-dKg"/>
                             <constraint firstItem="ubn-Pe-xPF" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="DXR-nD-SiN"/>
                             <constraint firstItem="X2p-8b-ten" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Ddj-4T-OKT"/>
+                            <constraint firstItem="kY5-3n-2po" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="E6F-yF-Pc3"/>
                             <constraint firstItem="jut-WC-Ag5" firstAttribute="top" secondItem="QFg-wF-pDZ" secondAttribute="bottom" id="Frp-K1-iFf"/>
                             <constraint firstItem="XEv-9h-WQw" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="H0b-7R-eK4"/>
                             <constraint firstItem="7VT-jT-CLf" firstAttribute="width" secondItem="6Tk-OE-BBY" secondAttribute="width" multiplier="0.33" id="HXx-QH-Vbq"/>
@@ -113,6 +120,8 @@
                             <constraint firstItem="ubn-Pe-xPF" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="YnS-kn-mFN"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="QFg-wF-pDZ" secondAttribute="trailing" id="ZL9-Z9-DJL"/>
                             <constraint firstItem="QFg-wF-pDZ" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="gyC-eu-SQY"/>
+                            <constraint firstItem="XEv-9h-WQw" firstAttribute="top" secondItem="kY5-3n-2po" secondAttribute="bottom" constant="16" id="iVw-ID-J9H"/>
+                            <constraint firstItem="kY5-3n-2po" firstAttribute="top" secondItem="7VT-jT-CLf" secondAttribute="bottom" constant="16" id="jze-QQ-Rzc"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -121,6 +130,7 @@
                     <connections>
                         <outlet property="addressLabel" destination="QFg-wF-pDZ" id="HiL-Gp-eCl"/>
                         <outlet property="directionsTableView" destination="jut-WC-Ag5" id="K92-ex-zcy"/>
+                        <outlet property="distanceLabel" destination="kY5-3n-2po" id="f5I-Cf-VUM"/>
                         <outlet property="etaLabel" destination="7VT-jT-CLf" id="aLo-Bh-ee5"/>
                         <outlet property="mapView" destination="ubn-Pe-xPF" id="fCB-CT-SCc"/>
                         <outlet property="routeButton" destination="9s8-rn-nVD" id="KUJ-tN-s4k"/>

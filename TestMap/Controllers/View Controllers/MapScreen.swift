@@ -33,6 +33,7 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
+    //MARK: - Outlets
     
     @IBOutlet weak var routeSegmentedControl: UISegmentedControl!
     @IBOutlet weak var mapView: MKMapView!
@@ -40,19 +41,25 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var routeButton: UIButton!
     @IBOutlet weak var directionsTableView: DirectionsTableView!
     @IBOutlet weak var etaLabel: UILabel!
+    @IBOutlet weak var distanceLabel: UILabel!
     
+    //MARK: - Properties
     
     let locationManager = CLLocationManager()
-    let regionInMeters: Double = 10000
+    let regionInMeters: Double = 2500
     var previousLocation: CLLocation?
     
     let geoCoder = CLGeocoder()
     var directionsArray = [MKDirections]()
+    //annotations array
     
+    
+    //MARK: - Lifecycle Methods
     
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
+        mapView.register(CustomAnnotation.self, forAnnotationViewWithReuseIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
         directionsTableView.delegate = self
         directionsTableView.dataSource = self
         designRouteButton()
@@ -60,12 +67,20 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
         self.mapView.showsUserLocation = true //may need moved
     }
     
+    // MARK: - Actions
+    
     @IBAction func routeButtonTapped(_ sender: UIButton) {
         if routeSegmentedControl.selectedSegmentIndex == 0 {
             getDirections()
         } else if routeSegmentedControl.selectedSegmentIndex == 1 {
-            
+            //TODO
+            //addAnnotation(title: "Ope Parkin", postedTime: 0, description: "Bruh")
+            placeCustomAnnotation(title: "Parking Spot", subtitle: "Spotted at (time)", locationName: "", discipline: "", coordinate: getCenterLocation(for: mapView).coordinate)
         }
+    }
+    
+    @IBAction func routeSegmentedControlToggled(_ sender: UISegmentedControl) {
+        designRouteButton()
     }
     
     
@@ -128,7 +143,7 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
         
         routeButton.layer.cornerRadius = routeButton.frame.height / 2
         } else if routeSegmentedControl.selectedSegmentIndex == 1 {
-            routeButton.layer.backgroundColor = UIColor.systemGreen.cgColor
+            routeButton.layer.backgroundColor = UIColor.systemBlue.cgColor
             
             routeButton.setTitle("Post", for: .normal)
             routeButton.setTitleColor(.white, for: .normal)
@@ -138,8 +153,17 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
     }
     
     //extra testing
+    func placeCustomAnnotation(title: String, subtitle: String, locationName: String, discipline: String, coordinate: CLLocationCoordinate2D) {
+        
+        let annotation = SpotAnnotation(title: title, subtitle: subtitle, locationName: locationName, discipline: discipline, coordinate: coordinate)
+        mapView.addAnnotation(annotation)
+        
+        
+    }
     
 }
+
+// MARK: - CLLocationManagerDelegate
 
 extension MapScreen: CLLocationManagerDelegate {
     //    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -190,7 +214,10 @@ extension MapScreen: CLLocationManagerDelegate {
                     print(step.instructions)
                 }
                 self.directionsTableView.directions = route
-                self.etaLabel.text = "\(route.expectedTravelTime)"
+                //TODO; format
+                self.etaLabel.text = ("\(Int((route.expectedTravelTime)/60)) min")
+                let formattedDistance = route.distance / 1000
+                self.distanceLabel.text = String(format: "%.01fmi", formattedDistance)
                 self.directionsTableView.reloadData()
             }
         }
@@ -221,8 +248,46 @@ extension MapScreen: CLLocationManagerDelegate {
         
     func clearMapView() {
         mapView.removeOverlays(mapView.overlays)
+        mapView.removeAnnotations(mapView.annotations)
+    }
+    
+    // MARK: - Annotations
+    
+    func addAnnotation(title: String, postedTime: TimeInterval, description: String?) {
+        
+        let center = getCenterLocation(for: mapView).coordinate
+        
+        
+        let parkingSpotAnnotation = MKPointAnnotation()
+        parkingSpotAnnotation.title = title
+        parkingSpotAnnotation.subtitle = "Spotted at \(postedTime)"
+        parkingSpotAnnotation.coordinate = center
+        mapView.addAnnotation(parkingSpotAnnotation)
+
+    }
+//    private func setupBridgeAnnotationView(for annotation: BridgeAnnotation, on mapView: MKMapView) -> MKAnnotationView {
+//        let identifier = NSStringFromClass(BridgeAnnotation.self)
+//        let view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier, for: annotation)
+//        if let markerAnnotationView = view as? MKMarkerAnnotationView {
+//            markerAnnotationView.animatesWhenAdded = true
+//            markerAnnotationView.canShowCallout = true
+//            markerAnnotationView.markerTintColor = UIColor(named: "internationalOrange")
+//
+//
+//            let rightButton = UIButton(type: .detailDisclosure)
+//            markerAnnotationView.rightCalloutAccessoryView = rightButton
+//        }
+//
+//        return view
+//    }
+    
+    private func constructRoute(userLocation: CLLocationCoordinate2D) {
+        
     }
 }
+
+// MARK: - MKMapViewDelegate
+
 extension MapScreen: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         //find a way to ignore center location if user is not placing pin
@@ -231,7 +296,7 @@ extension MapScreen: MKMapViewDelegate {
         
         guard let previousLocation = self.previousLocation else { return }
         //must me more than 50 meters difference before updates request for location
-        guard center.distance(from: previousLocation) > 50 else { return }
+        guard center.distance(from: previousLocation) > 25 else { return }
         self.previousLocation = center
         
         geoCoder.cancelGeocode()
@@ -259,10 +324,41 @@ extension MapScreen: MKMapViewDelegate {
         }
     }
     
+//    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+//        guard let latestLocation = locations.first else { return }
+//
+//        centerViewOnUserLocation()
+//        constructRoute(userLocation: latestLocation.coordinate)
+//    }
+    
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         let renderer = MKPolylineRenderer(overlay: overlay as! MKPolyline)
         renderer.strokeColor = .purple
         
         return renderer
+    }
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+
+        guard let annotation = annotation as? SpotAnnotation else { return nil }
+        let identifier = "spotMarker"
+        var view: MKMarkerAnnotationView
+        if let dequeuedView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView {
+            dequeuedView.annotation = annotation
+            view = dequeuedView
+        } else {
+            //view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            view = CustomAnnotation(annotation: annotation, reuseIdentifier: identifier)
+            view.canShowCallout = true
+            view.calloutOffset = CGPoint(x: -5, y: -5)
+            view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+            
+            
+        }
+        return view
+    }
+
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        print("Annotation selected: \(String(describing: view.annotation?.title))")
     }
 }
