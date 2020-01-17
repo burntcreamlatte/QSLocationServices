@@ -17,11 +17,16 @@ class CustomAnnotation: MKMarkerAnnotationView {
             canShowCallout = true
             calloutOffset = CGPoint(x: 0, y: 0)
             
-            let viewButton = UIButton(frame: CGRect(origin: CGPoint.zero, size: CGSize(width: 30, height: 30)))
-            viewButton.setBackgroundImage(UIImage(named: "moreInfo"), for: UIControl.State())
+            let systemButton = UIButton(frame: CGRect(origin: CGPoint.zero, size: CGSize(width: 30, height: 30)))
+            systemButton.setBackgroundImage(UIImage(named: "moreInfo"), for: UIControl.State())
+            systemButton.addTarget(self, action: #selector(systemButtonTapped), for: .touchUpInside)
+            
+            let viewButton = UIButton(frame: CGRect(origin: CGPoint.zero, size: CGSize(width: 40, height: 40)))
+            viewButton.setBackgroundImage(UIImage(named: "route"), for: UIControl.State())
             viewButton.addTarget(self, action: #selector(viewButtonTapped), for: .touchUpInside)
             
-            rightCalloutAccessoryView = viewButton
+            rightCalloutAccessoryView = systemButton
+            leftCalloutAccessoryView = viewButton
             
             if let imageName = spotAnnotation.imageName {
                 glyphImage = UIImage(named: imageName)
@@ -29,12 +34,17 @@ class CustomAnnotation: MKMarkerAnnotationView {
                 glyphImage = nil
             }
             
+            
 
             //markerTintColor = spotAnnotation.markerTintColor
             //glyphText = String(spotAnnotation.discipline.first!)
             
             
         }
+    }
+
+    @objc func systemButtonTapped() {
+        print("system button tapped")
     }
     
     @objc func viewButtonTapped() {

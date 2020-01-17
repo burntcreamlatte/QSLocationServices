@@ -42,6 +42,9 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var directionsTableView: DirectionsTableView!
     @IBOutlet weak var etaLabel: UILabel!
     @IBOutlet weak var distanceLabel: UILabel!
+    @IBOutlet weak var routeButtonYBottomConstraint: NSLayoutConstraint!
+    
+    
     
     //MARK: - Properties
     
@@ -59,10 +62,13 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
+        mapView.bottomAnchor
         mapView.register(CustomAnnotation.self, forAnnotationViewWithReuseIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
         directionsTableView.delegate = self
         directionsTableView.dataSource = self
-        designRouteButton()
+        addressLabel.isHidden = true
+        directionsTableView.isHidden = true
+        designRouteButtonAndView()
         checkLocationServices()
         self.mapView.showsUserLocation = true //may need moved
     }
@@ -80,7 +86,7 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
     }
     
     @IBAction func routeSegmentedControlToggled(_ sender: UISegmentedControl) {
-        designRouteButton()
+        designRouteButtonAndView()
     }
     
     
@@ -134,7 +140,7 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
         previousLocation = getCenterLocation(for: mapView)
     }
     
-    func designRouteButton() {
+    func designRouteButtonAndView() {
         if routeSegmentedControl.selectedSegmentIndex == 0 {
         routeButton.layer.backgroundColor = UIColor.systemGreen.cgColor
         
@@ -142,6 +148,13 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
         routeButton.setTitleColor(.white, for: .normal)
         
         routeButton.layer.cornerRadius = routeButton.frame.height / 2
+            
+            //SHOW
+//            self.directionsTableView.isHidden = false
+//            self.addressLabel.isHidden = false
+//            UIView.animate(withDuration: 1.0) {
+//                self.routeButtonYBottomConstraint.constant += self.addressLabel.frame.height + self.directionsTableView.frame.height + 16
+//            }
         } else if routeSegmentedControl.selectedSegmentIndex == 1 {
             routeButton.layer.backgroundColor = UIColor.systemBlue.cgColor
             
@@ -149,6 +162,10 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
             routeButton.setTitleColor(.white, for: .normal)
             
             routeButton.layer.cornerRadius = routeButton.frame.height / 2
+            //HIDE
+            self.directionsTableView.isHidden = true
+            self.addressLabel.isHidden = true
+            self.routeButtonYBottomConstraint.constant = 16
         }
     }
     
@@ -184,6 +201,8 @@ extension MapScreen: CLLocationManagerDelegate {
     }
     
     func getDirections() {
+        self.addressLabel.isHidden = false
+        self.directionsTableView.isHidden = false
         guard let location = locationManager.location?.coordinate else {
             //show error message
             print("Error in getting directions.")
@@ -215,7 +234,8 @@ extension MapScreen: CLLocationManagerDelegate {
                 }
                 self.directionsTableView.directions = route
                 //TODO; format
-                self.etaLabel.text = ("\(Int((route.expectedTravelTime)/60)) min")
+                //self.etaLabel.text = ("\(Int((route.expectedTravelTime)/60)) min")
+                self.etaLabel.text = "\(Date().advanced(by: <#T##TimeInterval#>))"
                 let formattedDistance = route.distance / 1000
                 self.distanceLabel.text = String(format: "%.01fmi", formattedDistance)
                 self.directionsTableView.reloadData()
@@ -280,10 +300,6 @@ extension MapScreen: CLLocationManagerDelegate {
 //
 //        return view
 //    }
-    
-    private func constructRoute(userLocation: CLLocationCoordinate2D) {
-        
-    }
 }
 
 // MARK: - MKMapViewDelegate
@@ -333,7 +349,7 @@ extension MapScreen: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         let renderer = MKPolylineRenderer(overlay: overlay as! MKPolyline)
-        renderer.strokeColor = .purple
+        renderer.strokeColor = .systemBlue
         
         return renderer
     }
@@ -350,9 +366,8 @@ extension MapScreen: MKMapViewDelegate {
             //view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
             view = CustomAnnotation(annotation: annotation, reuseIdentifier: identifier)
             view.canShowCallout = true
-            view.calloutOffset = CGPoint(x: -5, y: -5)
+            view.calloutOffset = CGPoint(x: 0, y: 0)
             view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
-            
             
         }
         return view
@@ -360,5 +375,15 @@ extension MapScreen: MKMapViewDelegate {
 
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         print("Annotation selected: \(String(describing: view.annotation?.title))")
+        if !directionsTableView.isHidden {
+            self.directionsTableView.isHidden = true
+            self.addressLabel.isHidden = true
+            self.routeButtonYBottomConstraint.constant = 16
+        }
+    }
+    
+    func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
+        print("Annotation deselected: \(String(describing: view.annotation?.title))")
+        
     }
 }
