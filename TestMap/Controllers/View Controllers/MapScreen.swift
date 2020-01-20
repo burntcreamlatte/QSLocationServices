@@ -39,6 +39,7 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var addressLabel: UILabel!
     @IBOutlet weak var routeButton: UIButton!
+    @IBOutlet weak var clearButton: UIButton!
     @IBOutlet weak var directionsTableView: DirectionsTableView!
     @IBOutlet weak var etaLabel: UILabel!
     @IBOutlet weak var distanceLabel: UILabel!
@@ -47,13 +48,17 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     
     //MARK: - Properties
+    static var shared = MapScreen()
     
     let locationManager = CLLocationManager()
-    let regionInMeters: Double = 2500
+    let regionInMeters: Double = 2000
     var previousLocation: CLLocation?
     
     let geoCoder = CLGeocoder()
     var directionsArray = [MKDirections]()
+    var selectedSpot: SpotAnnotation?
+    
+        
     //annotations array
     
     
@@ -62,13 +67,13 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
     override func viewDidLoad() {
         super.viewDidLoad()
         mapView.delegate = self
-        mapView.bottomAnchor
         mapView.register(CustomAnnotation.self, forAnnotationViewWithReuseIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
         directionsTableView.delegate = self
         directionsTableView.dataSource = self
         addressLabel.isHidden = true
         directionsTableView.isHidden = true
         designRouteButtonAndView()
+        designClearButton()
         checkLocationServices()
         self.mapView.showsUserLocation = true //may need moved
     }
@@ -77,23 +82,50 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     @IBAction func routeButtonTapped(_ sender: UIButton) {
         if routeSegmentedControl.selectedSegmentIndex == 0 {
-            getDirections()
+            //getDirectionsTesting()
+            if !directionsTableView.isHidden {
+                UIView.animate(withDuration: 1.0) {
+                    self.routeButtonYBottomConstraint.constant = self.addressLabel.frame.height + self.directionsTableView.frame.height + 16
+                }
+            }
         } else if routeSegmentedControl.selectedSegmentIndex == 1 {
             //TODO
-            //addAnnotation(title: "Ope Parkin", postedTime: 0, description: "Bruh")
-            placeCustomAnnotation(title: "Parking Spot", subtitle: "Spotted at (time)", locationName: "", discipline: "", coordinate: getCenterLocation(for: mapView).coordinate)
+            presentPostSpotAlert()
+            
         }
     }
     
     @IBAction func routeSegmentedControlToggled(_ sender: UISegmentedControl) {
         designRouteButtonAndView()
     }
+    @IBAction func clearButtonTapped(_ sender: UIButton) {
+        mapView.removeOverlays(mapView.overlays)
+        etaLabel.text = ""
+        distanceLabel.text = ""
+        mapView.deselectAnnotation(mapView.selectedAnnotations[0], animated: true)
+        hideRoutingAndReplaceButton()
+    }
     
+    func hideRoutingAndReplaceButton() {
+        self.addressLabel.isHidden = true
+        self.directionsTableView.isHidden = true
+        self.routeButtonYBottomConstraint.constant = 16
+    }
+    
+    func showRoutingAndReplaceButton() {
+        self.addressLabel.isHidden = false
+        self.directionsTableView.isHidden = false
+        self.routeButtonYBottomConstraint.constant = addressLabel.frame.height + directionsTableView.frame.height + 16
+    }
+    
+    //MARK: Setup Location Manager
     
     func setupLocationManager() {
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest //best for navigation?
     }
+    
+    //MARK: Center View on User Location
     
     func centerViewOnUserLocation() {
         if let location = locationManager.location?.coordinate {
@@ -101,6 +133,8 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
             mapView.setRegion(region, animated: true)
         }
     }
+    
+    //MARK: Check Location Services
     
     func checkLocationServices() {
         if CLLocationManager.locationServicesEnabled() {
@@ -110,6 +144,8 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
             //show alert to user to allow location services
         }
     }
+    
+    //MARK: Check Location Auth
     
     func checkLocationAuthorization() {
         switch CLLocationManager.authorizationStatus() {
@@ -131,6 +167,8 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
         }
     }
     
+    // MARK: Start Tracking User Location
+    
     func startTrackingUserLocation() {
         //would test to determine when phone suspended
         //refocuses view onto center of user; will need to allow people to look around map
@@ -139,6 +177,8 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
         locationManager.startUpdatingLocation()
         previousLocation = getCenterLocation(for: mapView)
     }
+    
+    // MARK: Design Route Button and View
     
     func designRouteButtonAndView() {
         if routeSegmentedControl.selectedSegmentIndex == 0 {
@@ -149,13 +189,11 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
         
         routeButton.layer.cornerRadius = routeButton.frame.height / 2
             
-            //SHOW
-//            self.directionsTableView.isHidden = false
-//            self.addressLabel.isHidden = false
-//            UIView.animate(withDuration: 1.0) {
-//                self.routeButtonYBottomConstraint.constant += self.addressLabel.frame.height + self.directionsTableView.frame.height + 16
-//            }
+        //SHOW
+        //showRoutingAndReplaceButton()
+
         } else if routeSegmentedControl.selectedSegmentIndex == 1 {
+            mapView.removeOverlays(mapView.overlays)
             routeButton.layer.backgroundColor = UIColor.systemBlue.cgColor
             
             routeButton.setTitle("Post", for: .normal)
@@ -163,18 +201,71 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
             
             routeButton.layer.cornerRadius = routeButton.frame.height / 2
             //HIDE
-            self.directionsTableView.isHidden = true
-            self.addressLabel.isHidden = true
-            self.routeButtonYBottomConstraint.constant = 16
+            hideRoutingAndReplaceButton()
         }
     }
     
+    func designClearButton() {
+        clearButton.layer.backgroundColor = UIColor.black.cgColor
+        
+        clearButton.setTitle("Clear UI", for: .normal)
+        clearButton.setTitleColor(.white, for: .normal)
+        
+        clearButton.layer.cornerRadius = routeButton.frame.height / 2
+    }
+    
+    // MARK: Present Post Alert Controller
+    
+    func presentPostSpotAlert() {
+        let title = NSLocalizedString("Post a spot here?", comment: "")
+        let message = NSLocalizedString("Message", comment: "")
+        let cancelButtonTitle = NSLocalizedString("Cancel", comment: "")
+        let postActionTitle = NSLocalizedString("Post", comment: "")
+        let hideActionTitle = NSLocalizedString("Hide", comment: "")
+        
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        
+        // Create the actions.
+        let cancelAction = UIAlertAction(title: cancelButtonTitle, style: .cancel) { _ in
+            print("Cancel action occurred.")
+        }
+        
+        let postAction = UIAlertAction(title: postActionTitle, style: .default) { _ in
+            print("Post action occurred.")
+            guard let text = alertController.textFields?.first?.text, !text.isEmpty else { return }
+            //let coordinate = self.getCenterLocation(for: self.mapView).coordinate
+            //let date = Date().formatted()
+            //TODO; Date().timeAgo() functionality
+            //self.placeCustomAnnotation(title: text, subtitle: "Posted at \(Date().formatted())", locationName: "", discipline: "", coordinate: coordinate)
+            //self.timePostedLabel.text = "\(Date.formatted(Date()))"
+            self.addAnnotation(title: text, description: "desc", coordinate: self.getCenterLocation(for: self.mapView).coordinate)
+        }
+        
+        
+        let hideAction = UIAlertAction(title: hideActionTitle, style: .destructive) { _ in
+            print("Hide action occurred.")
+            //TODO: hide/*delete* annotation
+        }
+        
+        // Add the actions.
+        alertController.addAction(cancelAction)
+        alertController.addAction(postAction)
+        alertController.addAction(hideAction)
+        alertController.addTextField { (textFieldTitle) in
+            textFieldTitle.placeholder = "Name your spot"
+            textFieldTitle.autocorrectionType = .yes
+        }
+        
+        present(alertController, animated: true, completion: nil)
+    }
+    
     //extra testing
+    
+    //MARK: Place Custom Annotation
     func placeCustomAnnotation(title: String, subtitle: String, locationName: String, discipline: String, coordinate: CLLocationCoordinate2D) {
         
         let annotation = SpotAnnotation(title: title, subtitle: subtitle, locationName: locationName, discipline: discipline, coordinate: coordinate)
         mapView.addAnnotation(annotation)
-        
         
     }
     
@@ -200,9 +291,10 @@ extension MapScreen: CLLocationManagerDelegate {
         return CLLocation(latitude: latitude, longitude: longitude)
     }
     
+    // MARK: Get Directions
+    
     func getDirections() {
-        self.addressLabel.isHidden = false
-        self.directionsTableView.isHidden = false
+        showRoutingAndReplaceButton()
         guard let location = locationManager.location?.coordinate else {
             //show error message
             print("Error in getting directions.")
@@ -220,9 +312,11 @@ extension MapScreen: CLLocationManagerDelegate {
             
             for route in response.routes {
                 //if steps are needed
-                var steps = route.steps
-                steps.removeFirst()
+                let steps = route.steps
+                //steps.removeFirst()
                 
+                //MARK:
+                //TODO: overlay not passing
                 self.mapView.addOverlay(route.polyline)
                 //will need to bring rect out more
                 self.mapView.setVisibleMapRect(route.polyline.boundingMapRect, animated: true)
@@ -235,7 +329,7 @@ extension MapScreen: CLLocationManagerDelegate {
                 self.directionsTableView.directions = route
                 //TODO; format
                 //self.etaLabel.text = ("\(Int((route.expectedTravelTime)/60)) min")
-                self.etaLabel.text = "\(Date().advanced(by: <#T##TimeInterval#>))"
+                self.etaLabel.text = "ETA: \(Date.formatted(Date().advanced(by: route.expectedTravelTime))())"
                 let formattedDistance = route.distance / 1000
                 self.distanceLabel.text = String(format: "%.01fmi", formattedDistance)
                 self.directionsTableView.reloadData()
@@ -244,7 +338,9 @@ extension MapScreen: CLLocationManagerDelegate {
     }
     
     func createDirectionsRequest(from coordinate: CLLocationCoordinate2D) -> MKDirections.Request {
-        let destinationCoordinate = getCenterLocation(for: mapView).coordinate
+        
+        //getcenter
+        let destinationCoordinate = mapView.selectedAnnotations[0].coordinate
         let startingLocation = MKPlacemark(coordinate: coordinate)
         let destination = MKPlacemark(coordinate: destinationCoordinate)
         
@@ -260,7 +356,7 @@ extension MapScreen: CLLocationManagerDelegate {
     
     
     func resetMapView(withNew directions: MKDirections) {
-        mapView.removeOverlays(mapView.overlays)
+        self.mapView.removeOverlays(self.mapView.overlays)
         directionsArray.append(directions)
         //only cancels a PENDING REQUEST, does not remove
         let _ = directionsArray.map { $0.cancel() }
@@ -268,20 +364,20 @@ extension MapScreen: CLLocationManagerDelegate {
         
     func clearMapView() {
         mapView.removeOverlays(mapView.overlays)
-        mapView.removeAnnotations(mapView.annotations)
+        //mapView.removeAnnotations(mapView.annotations)
     }
     
     // MARK: - Annotations
-    
-    func addAnnotation(title: String, postedTime: TimeInterval, description: String?) {
+
+    func addAnnotation(title: String, postedTime: Date = Date(), description: String?, coordinate: CLLocationCoordinate2D) {
         
-        let center = getCenterLocation(for: mapView).coordinate
-        
-        
-        let parkingSpotAnnotation = MKPointAnnotation()
-        parkingSpotAnnotation.title = title
-        parkingSpotAnnotation.subtitle = "Spotted at \(postedTime)"
-        parkingSpotAnnotation.coordinate = center
+        //let center = getCenterLocation(for: mapView).coordinate
+
+        let parkingSpotAnnotation = SpotAnnotation(title: title, subtitle: "Spotted at \(postedTime.formatted())", locationName: "", discipline: "", coordinate: coordinate)
+        //parkingSpotAnnotation.title = title
+        //parkingSpotAnnotation.subtitle = "Spotted at \(postedTime.formatted())"
+        print(postedTime.formatted())
+        //parkingSpotAnnotation.coordinate = center
         mapView.addAnnotation(parkingSpotAnnotation)
 
     }
@@ -339,7 +435,7 @@ extension MapScreen: MKMapViewDelegate {
             }
         }
     }
-    
+
 //    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
 //        guard let latestLocation = locations.first else { return }
 //
@@ -374,12 +470,18 @@ extension MapScreen: MKMapViewDelegate {
     }
 
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        MapScreen.shared.selectedSpot = view.annotation as? SpotAnnotation
         print("Annotation selected: \(String(describing: view.annotation?.title))")
-        if !directionsTableView.isHidden {
-            self.directionsTableView.isHidden = true
-            self.addressLabel.isHidden = true
-            self.routeButtonYBottomConstraint.constant = 16
-        }
+        print("Annotion coordinates: \(String(describing: view.annotation?.coordinate))")
+        
+        getDirections()
+        
+//        if !directionsTableView.isHidden {
+//            self.directionsTableView.isHidden = true
+//            self.addressLabel.isHidden = true
+//            self.routeButtonYBottomConstraint.constant = 16
+//        }
+        
     }
     
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {

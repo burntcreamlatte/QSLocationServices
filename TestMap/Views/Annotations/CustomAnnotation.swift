@@ -11,6 +11,9 @@ import MapKit
 
 //would name anntationVIEW
 class CustomAnnotation: MKMarkerAnnotationView {
+    
+    
+    
     override var annotation: MKAnnotation? {
         willSet {
             guard let spotAnnotation = newValue as? SpotAnnotation else { return }
@@ -34,7 +37,6 @@ class CustomAnnotation: MKMarkerAnnotationView {
                 glyphImage = nil
             }
             
-            
 
             //markerTintColor = spotAnnotation.markerTintColor
             //glyphText = String(spotAnnotation.discipline.first!)
@@ -49,5 +51,7 @@ class CustomAnnotation: MKMarkerAnnotationView {
     
     @objc func viewButtonTapped() {
         print("view button tapped")
+        MapScreen.shared.getDirections()
+        
     }
 }

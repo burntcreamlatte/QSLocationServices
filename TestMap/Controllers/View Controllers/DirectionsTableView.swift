@@ -66,12 +66,12 @@ extension CLLocationDistance {
     }
 }
 
-extension TimeInterval {
+extension Date {
+    
     func formatted() -> String {
-        let formatter = DateComponentsFormatter()
-        formatter.unitsStyle = .full
-        formatter.allowedUnits = [NSCalendar.Unit.hour, NSCalendar.Unit.minute, NSCalendar.Unit.second]
-        
-        return formatter.string(from: self)!
+        let df = DateFormatter()
+        df.dateStyle = .none
+        df.timeStyle = .short
+        return df.string(from: self)
     }
 }

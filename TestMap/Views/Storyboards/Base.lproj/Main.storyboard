@@ -96,6 +96,18 @@
                                     <action selector="routeSegmentedControlToggled:" destination="BYZ-38-t0r" eventType="valueChanged" id="2vL-G9-a2e"/>
                                 </connections>
                             </segmentedControl>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XiC-B1-h2O">
+                                <rect key="frame" x="307" y="120" width="75" height="75"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="75" id="SLs-vX-yD4"/>
+                                    <constraint firstAttribute="width" secondItem="XiC-B1-h2O" secondAttribute="height" multiplier="1:1" id="TtF-TW-yml"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="20"/>
+                                <state key="normal" title="Button"/>
+                                <connections>
+                                    <action selector="clearButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="AUp-iS-Taj"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
@@ -113,8 +125,9 @@
                             <constraint firstItem="jut-WC-Ag5" firstAttribute="top" secondItem="QFg-wF-pDZ" secondAttribute="bottom" id="Frp-K1-iFf"/>
                             <constraint firstItem="XEv-9h-WQw" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="H0b-7R-eK4"/>
                             <constraint firstItem="7VT-jT-CLf" firstAttribute="width" secondItem="6Tk-OE-BBY" secondAttribute="width" multiplier="0.33" id="HXx-QH-Vbq"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="XiC-B1-h2O" secondAttribute="trailing" constant="32" id="Itj-Jq-j4N"/>
                             <constraint firstItem="jut-WC-Ag5" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="L3X-pa-WOz"/>
-                            <constraint firstItem="ubn-Pe-xPF" firstAttribute="bottom" secondItem="jut-WC-Ag5" secondAttribute="bottom" constant="20" symbolic="YES" id="MQ2-Mi-MxE"/>
+                            <constraint firstItem="ubn-Pe-xPF" firstAttribute="bottom" secondItem="jut-WC-Ag5" secondAttribute="bottom" symbolic="YES" id="MQ2-Mi-MxE"/>
                             <constraint firstItem="jut-WC-Ag5" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="Mge-41-wLW"/>
                             <constraint firstAttribute="bottom" secondItem="9s8-rn-nVD" secondAttribute="bottom" constant="30" id="PcY-5J-pvW"/>
                             <constraint firstItem="ubn-Pe-xPF" firstAttribute="bottom" secondItem="8bC-Xf-vdC" secondAttribute="bottom" id="YnS-kn-mFN"/>
@@ -122,6 +135,7 @@
                             <constraint firstItem="QFg-wF-pDZ" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="gyC-eu-SQY"/>
                             <constraint firstItem="XEv-9h-WQw" firstAttribute="top" secondItem="kY5-3n-2po" secondAttribute="bottom" constant="16" id="iVw-ID-J9H"/>
                             <constraint firstItem="kY5-3n-2po" firstAttribute="top" secondItem="7VT-jT-CLf" secondAttribute="bottom" constant="16" id="jze-QQ-Rzc"/>
+                            <constraint firstItem="XiC-B1-h2O" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="76" id="q2p-C3-Tjg"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -129,6 +143,7 @@
                     <navigationItem key="navigationItem" id="iDe-s3-0Zv"/>
                     <connections>
                         <outlet property="addressLabel" destination="QFg-wF-pDZ" id="HiL-Gp-eCl"/>
+                        <outlet property="clearButton" destination="XiC-B1-h2O" id="nAJ-tf-VJ2"/>
                         <outlet property="directionsTableView" destination="jut-WC-Ag5" id="K92-ex-zcy"/>
                         <outlet property="distanceLabel" destination="kY5-3n-2po" id="f5I-Cf-VUM"/>
                         <outlet property="etaLabel" destination="7VT-jT-CLf" id="aLo-Bh-ee5"/>

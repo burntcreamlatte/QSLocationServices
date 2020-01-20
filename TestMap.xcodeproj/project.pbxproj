@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		AB27FC6F23D0DE98006F1496 /* SpotAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB27FC6E23D0DE98006F1496 /* SpotAnnotation.swift */; };
 		AB27FC7123D0E43C006F1496 /* CustomAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB27FC7023D0E43C006F1496 /* CustomAnnotation.swift */; };
+		AB27FCA623D2165C006F1496 /* DateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB27FCA523D2165C006F1496 /* DateExtension.swift */; };
 		AB4AB30523CE42DA00E06050 /* ResultsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4AB30423CE42DA00E06050 /* ResultsTableViewCell.swift */; };
 		AB4AB30723CE639F00E06050 /* DirectionsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4AB30623CE639F00E06050 /* DirectionsTableView.swift */; };
 		ABBA27A423C65B34008C24BD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBA27A323C65B34008C24BD /* AppDelegate.swift */; };
@@ -22,6 +23,7 @@
 /* Begin PBXFileReference section */
 		AB27FC6E23D0DE98006F1496 /* SpotAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotAnnotation.swift; sourceTree = "<group>"; };
 		AB27FC7023D0E43C006F1496 /* CustomAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAnnotation.swift; sourceTree = "<group>"; };
+		AB27FCA523D2165C006F1496 /* DateExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtension.swift; sourceTree = "<group>"; };
 		AB4AB30423CE42DA00E06050 /* ResultsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsTableViewCell.swift; sourceTree = "<group>"; };
 		AB4AB30623CE639F00E06050 /* DirectionsTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectionsTableView.swift; sourceTree = "<group>"; };
 		ABBA27A023C65B34008C24BD /* TestMap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -54,6 +56,14 @@
 			path = Annotations;
 			sourceTree = "<group>";
 		};
+		AB27FCA223D20D46006F1496 /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				AB27FCA523D2165C006F1496 /* DateExtension.swift */,
+			);
+			path = Utility;
+			sourceTree = "<group>";
+		};
 		ABBA279723C65B34008C24BD = {
 			isa = PBXGroup;
 			children = (
@@ -73,6 +83,7 @@
 		ABBA27A223C65B34008C24BD /* TestMap */ = {
 			isa = PBXGroup;
 			children = (
+				AB27FCA223D20D46006F1496 /* Utility */,
 				ABBA27BA23C65C06008C24BD /* Views */,
 				ABBA27B823C65BF3008C24BD /* Controllers */,
 				ABBA27B723C65BEC008C24BD /* Resources */,
@@ -199,6 +210,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ABBA27BD23C65ECE008C24BD /* MapScreen.swift in Sources */,
+				AB27FCA623D2165C006F1496 /* DateExtension.swift in Sources */,
 				ABBA27A423C65B34008C24BD /* AppDelegate.swift in Sources */,
 				AB27FC6F23D0DE98006F1496 /* SpotAnnotation.swift in Sources */,
 				ABBA27A623C65B34008C24BD /* SceneDelegate.swift in Sources */,
