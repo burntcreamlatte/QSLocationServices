@@ -13,7 +13,7 @@ class SpotAnnotation: NSObject, MKAnnotation {
     
     let title: String?
     var subtitle: String?
-    let locationName: String
+    let locationName: String //might not need?
     let discipline: String
     let postedDate: Date
     let coordinate: CLLocationCoordinate2D

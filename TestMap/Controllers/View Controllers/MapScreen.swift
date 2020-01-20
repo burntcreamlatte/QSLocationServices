@@ -76,6 +76,17 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
         designClearButton()
         checkLocationServices()
         self.mapView.showsUserLocation = true //may need moved
+        locationManager.distanceFilter = 750
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        print(mapView.userLocation.coordinate)
+            let geoFenceRegion: CLCircularRegion = CLCircularRegion(center: mapView.userLocation.coordinate, radius: locationManager.distanceFilter, identifier: "userRadius")
+            locationManager.startMonitoring(for: geoFenceRegion)
+            print(geoFenceRegion.center.self)
+            print(mapView.userLocation.coordinate)
+            let circle = MKCircle(center: geoFenceRegion.center.self, radius: locationManager.distanceFilter)
+            mapView.addOverlay(circle)
     }
     
     // MARK: - Actions
@@ -378,6 +389,8 @@ extension MapScreen: CLLocationManagerDelegate {
         //parkingSpotAnnotation.subtitle = "Spotted at \(postedTime.formatted())"
         print(postedTime.formatted())
         //parkingSpotAnnotation.coordinate = center
+//        if parkingSpotAnnotation.coordinate <= locationManager.distanceFilter {
+//        }
         mapView.addAnnotation(parkingSpotAnnotation)
 
     }
@@ -444,11 +457,23 @@ extension MapScreen: MKMapViewDelegate {
 //    }
     
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
-        let renderer = MKPolylineRenderer(overlay: overlay as! MKPolyline)
-        renderer.strokeColor = .systemBlue
         
-        return renderer
+        //POLYLINES
+//        let renderer = MKPolylineRenderer(overlay: overlay as! MKPolyline)
+//        renderer.strokeColor = .systemBlue
+//
+//        return renderer
+        
+        //CIRCLE GEOFENCE TESTER
+        guard let cirleOverlay = overlay as? MKCircle else { return MKOverlayRenderer() }
+        let circleRender = MKCircleRenderer(circle: cirleOverlay)
+        circleRender.strokeColor = .red
+        circleRender.fillColor = .green
+        circleRender.alpha = 0.5
+        return circleRender
+        
     }
+    
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
 
@@ -476,6 +501,8 @@ extension MapScreen: MKMapViewDelegate {
         
         getDirections()
         
+        
+        
 //        if !directionsTableView.isHidden {
 //            self.directionsTableView.isHidden = true
 //            self.addressLabel.isHidden = true
@@ -487,5 +514,13 @@ extension MapScreen: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
         print("Annotation deselected: \(String(describing: view.annotation?.title))")
         
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+        print("Entered \(region.identifier).")
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+        print("Exited \(region.identifier).")
     }
 }
