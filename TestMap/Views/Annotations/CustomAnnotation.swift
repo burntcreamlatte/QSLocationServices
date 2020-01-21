@@ -12,10 +12,9 @@ import MapKit
 //would name anntationVIEW
 class CustomAnnotation: MKMarkerAnnotationView {
     
-    
-    
     override var annotation: MKAnnotation? {
         willSet {
+            
             guard let spotAnnotation = newValue as? SpotAnnotation else { return }
             canShowCallout = true
             calloutOffset = CGPoint(x: 0, y: 0)
@@ -37,7 +36,7 @@ class CustomAnnotation: MKMarkerAnnotationView {
                 glyphImage = nil
             }
             
-
+            //may not need
             //markerTintColor = spotAnnotation.markerTintColor
             //glyphText = String(spotAnnotation.discipline.first!)
             

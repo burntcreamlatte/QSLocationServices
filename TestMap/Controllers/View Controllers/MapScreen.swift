@@ -9,6 +9,7 @@
 import Foundation
 import MapKit
 import CoreLocation
+import AVFoundation
 
 class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
@@ -44,8 +45,7 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
     @IBOutlet weak var etaLabel: UILabel!
     @IBOutlet weak var distanceLabel: UILabel!
     @IBOutlet weak var routeButtonYBottomConstraint: NSLayoutConstraint!
-    
-    
+    @IBOutlet weak var currentDirectionStepLabel: UILabel!
     
     //MARK: - Properties
     static var shared = MapScreen()
@@ -53,11 +53,18 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
     let locationManager = CLLocationManager()
     let regionInMeters: Double = 2000
     var previousLocation: CLLocation?
+    var currentCoordinate: CLLocationCoordinate2D!
     
     let geoCoder = CLGeocoder()
-    var directionsArray = [MKDirections]()
-    var selectedSpot: SpotAnnotation?
+    var routingSteps = [MKRoute.Step]()
+    var stepCounter = 0 //
     
+    var directionsArray = [MKDirections]()
+    let speechSynthesizer = AVSpeechSynthesizer()
+    
+    var selectedSpot: SpotAnnotation?
+    var geoFenceRegion = CLCircularRegion()
+    let postDistanceLimit: Double = 245
         
     //annotations array
     
@@ -68,32 +75,32 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
         super.viewDidLoad()
         mapView.delegate = self
         mapView.register(CustomAnnotation.self, forAnnotationViewWithReuseIdentifier: MKMapViewDefaultAnnotationViewReuseIdentifier)
-        directionsTableView.delegate = self
-        directionsTableView.dataSource = self
+        directionsTableView.delegate = self //
+        directionsTableView.dataSource = self //
         addressLabel.isHidden = true
         directionsTableView.isHidden = true
         designRouteButtonAndView()
         designClearButton()
         checkLocationServices()
         self.mapView.showsUserLocation = true //may need moved
-        locationManager.distanceFilter = 750
+        locationManager.distanceFilter = 1609
     }
     
     override func viewDidAppear(_ animated: Bool) {
         print(mapView.userLocation.coordinate)
-            let geoFenceRegion: CLCircularRegion = CLCircularRegion(center: mapView.userLocation.coordinate, radius: locationManager.distanceFilter, identifier: "userRadius")
+            geoFenceRegion = CLCircularRegion(center: mapView.userLocation.coordinate, radius: locationManager.distanceFilter, identifier: "userRadius")
             locationManager.startMonitoring(for: geoFenceRegion)
             print(geoFenceRegion.center.self)
             print(mapView.userLocation.coordinate)
-            let circle = MKCircle(center: geoFenceRegion.center.self, radius: locationManager.distanceFilter)
-            mapView.addOverlay(circle)
+            //let circle = MKCircle(center: geoFenceRegion.center.self, radius: locationManager.distanceFilter)
+            //mapView.addOverlay(circle)
     }
     
     // MARK: - Actions
     
     @IBAction func routeButtonTapped(_ sender: UIButton) {
         if routeSegmentedControl.selectedSegmentIndex == 0 {
-            //getDirectionsTesting()
+            //getDirections() does not work with current requirements to annotation
             if !directionsTableView.isHidden {
                 UIView.animate(withDuration: 1.0) {
                     self.routeButtonYBottomConstraint.constant = self.addressLabel.frame.height + self.directionsTableView.frame.height + 16
@@ -204,7 +211,7 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
         //showRoutingAndReplaceButton()
 
         } else if routeSegmentedControl.selectedSegmentIndex == 1 {
-            mapView.removeOverlays(mapView.overlays)
+            //mapView.removeOverlays(mapView.overlays)
             routeButton.layer.backgroundColor = UIColor.systemBlue.cgColor
             
             routeButton.setTitle("Post", for: .normal)
@@ -256,6 +263,7 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
         let hideAction = UIAlertAction(title: hideActionTitle, style: .destructive) { _ in
             print("Hide action occurred.")
             //TODO: hide/*delete* annotation
+            print("Checking to see how many spots are currently on the whole mapView: \(self.mapView.annotations.count)")
         }
         
         // Add the actions.
@@ -285,12 +293,16 @@ class MapScreen: UIViewController, UITableViewDelegate, UITableViewDataSource {
 // MARK: - CLLocationManagerDelegate
 
 extension MapScreen: CLLocationManagerDelegate {
-    //    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-    //        guard let location = locations.last else { return }
-    //        let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-    //        let region = MKCoordinateRegion.init(center: center, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
-    //        mapView.setRegion(region, animated: true)
-    //    }
+        func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+//            guard let location = locations.last else { return }
+//            let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+//            let region = MKCoordinateRegion.init(center: center, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
+//            mapView.setRegion(region, animated: true)
+            //manager.stopUpdatingLocation()
+            guard let currentLocation = locations.first else { return }
+            currentCoordinate = currentLocation.coordinate
+            mapView.userTrackingMode = .followWithHeading
+        }
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         checkLocationAuthorization()
     }
@@ -302,9 +314,18 @@ extension MapScreen: CLLocationManagerDelegate {
         return CLLocation(latitude: latitude, longitude: longitude)
     }
     
+    // MARK: Get Distance
+    
+    func getDistance() {
+        
+    }
+    
+    
+    
     // MARK: Get Directions
     
     func getDirections() {
+        
         showRoutingAndReplaceButton()
         guard let location = locationManager.location?.coordinate else {
             //show error message
@@ -323,19 +344,52 @@ extension MapScreen: CLLocationManagerDelegate {
             
             for route in response.routes {
                 //if steps are needed
-                let steps = route.steps
+                let steps = route.steps //mnn
                 //steps.removeFirst()
                 
                 //MARK:
-                //TODO: overlay not passing
+                
+                self.locationManager.monitoredRegions.forEach( {self.locationManager.stopMonitoring(for: $0)} )
+                
+                self.routingSteps = route.steps
                 self.mapView.addOverlay(route.polyline)
                 //will need to bring rect out more
                 self.mapView.setVisibleMapRect(route.polyline.boundingMapRect, animated: true)
                 
                 //shows individual routing steps
                 //steps.remove(at: 0)
-                for step in steps {
+//                for step in steps {
+//                    print(step.instructions)
+//                }
+                for i in 0 ..< route.steps.count {
+                    let step = route.steps[i]
                     print(step.instructions)
+                    print(step.distance)
+                    let region = CLCircularRegion(center: step.polyline.coordinate, radius: 20, identifier: "\(i)")
+                    self.locationManager.startMonitoring(for: region)
+                    let circle = MKCircle(center: region.center, radius: region.radius)
+                    self.mapView.addOverlay(circle)
+                }
+//                let initialMessage = "Yo how dope is this? I'm guessing you guys would love this in, yeah?"
+//                let speechUtterance = AVSpeechUtterance(string: initialMessage)
+//                self.speechSynthesizer.speak(speechUtterance)
+//                self.currentDirectionStepLabel.text = initialMessage
+                //STEP COUNTER
+                self.stepCounter += 1
+                if self.stepCounter < self.routingSteps.count {
+                    let currentStep = self.routingSteps[self.stepCounter]
+                    let message = "In \((currentStep.distance*3.28084)) feet, \(self.routingSteps[self.stepCounter].instructions)"
+                    self.currentDirectionStepLabel.text = message
+                    let speechUtterance = AVSpeechUtterance(string: message)
+                    self.speechSynthesizer.speak(speechUtterance)
+                } else {
+                    let message = "Hot dang, y'all arrived at your destination, bruh"
+                    self.currentDirectionStepLabel.text = message
+                    let speechUtterance = AVSpeechUtterance(string: message)
+                    self.speechSynthesizer.speak(speechUtterance)
+                    self.stepCounter = 0
+                    
+                    self.locationManager.monitoredRegions.forEach({ self.locationManager.stopMonitoring(for: $0) })
                 }
                 self.directionsTableView.directions = route
                 //TODO; format
@@ -389,9 +443,21 @@ extension MapScreen: CLLocationManagerDelegate {
         //parkingSpotAnnotation.subtitle = "Spotted at \(postedTime.formatted())"
         print(postedTime.formatted())
         //parkingSpotAnnotation.coordinate = center
-//        if parkingSpotAnnotation.coordinate <= locationManager.distanceFilter {
+        let userLoc = CLLocation(latitude: self.mapView.userLocation.coordinate.latitude, longitude: self.mapView.userLocation.coordinate.longitude)
+        let spotLoc = CLLocation(latitude: parkingSpotAnnotation.coordinate.latitude, longitude: parkingSpotAnnotation.coordinate.longitude)
+        let distance = userLoc.distance(from: spotLoc)
+        let formattedDistance = distance / 1000
+        self.distanceLabel.text = "Test Spot Distance: " + String(format: "%.01fmi", formattedDistance)
+        print(distance)
+        if distance > locationManager.distanceFilter {
+            print("Too Far to post")
+        }
+        if distance > postDistanceLimit {
+            print("Too Far to post")
+        }
+//        if parkingSpotAnnotation.coordinate. {
 //        }
-        mapView.addAnnotation(parkingSpotAnnotation)
+        self.mapView.addAnnotation(parkingSpotAnnotation)
 
     }
 //    private func setupBridgeAnnotationView(for annotation: BridgeAnnotation, on mapView: MKMapView) -> MKAnnotationView {
@@ -459,19 +525,23 @@ extension MapScreen: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         
         //POLYLINES
-//        let renderer = MKPolylineRenderer(overlay: overlay as! MKPolyline)
-//        renderer.strokeColor = .systemBlue
-//
-//        return renderer
-        
+        if overlay is MKPolyline {
+            let renderer = MKPolylineRenderer(overlay: overlay as! MKPolyline)
+            renderer.strokeColor = .systemBlue
+            renderer.lineWidth = 5
+            
+            return renderer
+        }
         //CIRCLE GEOFENCE TESTER
-        guard let cirleOverlay = overlay as? MKCircle else { return MKOverlayRenderer() }
-        let circleRender = MKCircleRenderer(circle: cirleOverlay)
-        circleRender.strokeColor = .red
-        circleRender.fillColor = .green
-        circleRender.alpha = 0.5
-        return circleRender
-        
+        if overlay is MKCircle {
+            let renderer = MKCircleRenderer(overlay: overlay as! MKCircle)
+            renderer.strokeColor = .red
+            renderer.fillColor = .clear
+            renderer.alpha = 0.5
+            
+            return renderer
+        }
+        return MKOverlayRenderer()
     }
     
     

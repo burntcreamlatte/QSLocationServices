@@ -108,6 +108,12 @@
                                     <action selector="clearButtonTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="AUp-iS-Taj"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="(currentDirectionStep)" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aUR-rF-T5i">
+                                <rect key="frame" x="32" y="591.5" width="350" height="20.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
@@ -135,7 +141,11 @@
                             <constraint firstItem="QFg-wF-pDZ" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="gyC-eu-SQY"/>
                             <constraint firstItem="XEv-9h-WQw" firstAttribute="top" secondItem="kY5-3n-2po" secondAttribute="bottom" constant="16" id="iVw-ID-J9H"/>
                             <constraint firstItem="kY5-3n-2po" firstAttribute="top" secondItem="7VT-jT-CLf" secondAttribute="bottom" constant="16" id="jze-QQ-Rzc"/>
+                            <constraint firstItem="aUR-rF-T5i" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="32" id="lOi-sv-W5S"/>
                             <constraint firstItem="XiC-B1-h2O" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="76" id="q2p-C3-Tjg"/>
+                            <constraint firstItem="QFg-wF-pDZ" firstAttribute="top" secondItem="aUR-rF-T5i" secondAttribute="bottom" constant="29.5" id="qNU-Tq-2Tx"/>
+                            <constraint firstItem="aUR-rF-T5i" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="qSH-2c-cnd"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="aUR-rF-T5i" secondAttribute="trailing" constant="32" id="tsm-Lr-0k9"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -144,6 +154,7 @@
                     <connections>
                         <outlet property="addressLabel" destination="QFg-wF-pDZ" id="HiL-Gp-eCl"/>
                         <outlet property="clearButton" destination="XiC-B1-h2O" id="nAJ-tf-VJ2"/>
+                        <outlet property="currentDirectionStepLabel" destination="aUR-rF-T5i" id="KUX-lS-Ioy"/>
                         <outlet property="directionsTableView" destination="jut-WC-Ag5" id="K92-ex-zcy"/>
                         <outlet property="distanceLabel" destination="kY5-3n-2po" id="f5I-Cf-VUM"/>
                         <outlet property="etaLabel" destination="7VT-jT-CLf" id="aLo-Bh-ee5"/>
